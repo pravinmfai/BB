@@ -6,23 +6,23 @@ const User = require('../models/userModel');
 const protect = async (req, res, next) => {
   let token;
 
+  // Check for token in cookies
   if (req.cookies.token) {
-    try {
-      // Get token from cookie
-      token = req.cookies.token;
-
-      // Verify token and get user ID
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id).select('-password'); // Exclude password field
-
-      next();
-    } catch (error) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
-    }
+    token = req.cookies.token;
   }
 
+  // If no token found
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'Not authorized, no token' });
+  }
+
+  try {
+    // Verify token and get user ID
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id).select('-password'); // Exclude password field
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Not authorized, token failed' });
   }
 };
 

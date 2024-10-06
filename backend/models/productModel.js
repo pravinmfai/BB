@@ -7,18 +7,51 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  price: {
+    type: Number,
+    required: true,
+  },
   description: {
     type: String,
     required: true,
   },
-  price: {
+  discountType: {
+    type: String,
+  },
+  discountPercentage: {
+    type: Number,
+  },
+  color: {
+    type: [String], // Assuming color can be an array of strings
+  },
+  material: {
+    type: String,
+  },
+  size: {
+    type: String,
+  },
+  quantity: {
     type: Number,
     required: true,
+  },
+  category: {
+    type: String,
+  },
+  tags: {
+    type: [String], // Assuming tags is an array of strings
   },
   imageUrl: {
     type: String,
     required: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  }
 });
 
 // Create the product model

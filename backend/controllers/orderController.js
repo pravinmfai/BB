@@ -2,12 +2,18 @@
 const Razorpay = require('razorpay');
 const Order = require('../models/orderModel');
 const razorpayInstance = require('../config/razorpay');
+const crypto = require('crypto');
 
 // Create an order and initiate Razorpay payment
 const createOrder = async (req, res) => {
   try {
     const userId = req.user._id;
     const { amount } = req.body; // Amount should be in paise
+
+    // Validate the amount
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
 
     const options = {
       amount: amount, // Amount in paise
@@ -29,6 +35,7 @@ const createOrder = async (req, res) => {
 
     res.json({ orderId: order.id });
   } catch (error) {
+    console.error('Error creating order:', error); // Log the error for debugging
     res.status(500).json({ message: error.message });
   }
 };
@@ -37,7 +44,6 @@ const createOrder = async (req, res) => {
 const verifyOrder = async (req, res) => {
   try {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
-    const crypto = require('crypto');
     const order = await Order.findOne({ razorpayOrderId });
 
     if (!order) {
@@ -60,6 +66,7 @@ const verifyOrder = async (req, res) => {
 
     res.json({ message: 'Payment verified and order confirmed' });
   } catch (error) {
+    console.error('Error verifying order:', error); // Log the error for debugging
     res.status(500).json({ message: error.message });
   }
 };
