@@ -27,13 +27,14 @@ const updateCart = async (req, res) => {
     
 
     // Log the productId for debugging
-    console.log('Product ID:', productId);
-    console.log('User ID:', userId);
-    console.log('Request User:', req.user);
-    console.log('Database Name:', mongoose.connection.name); // This gets the name of the current database
-    console.log('Collection Name:', Product.collection.collectionName); // This gets the name of the collection
+    // console.log('Product ID:', productId);
+    // console.log('User ID:', userId);
+    // console.log('Request User:', req.user);
+    // console.log('Database Name:', mongoose.connection.name); // This gets the name of the current database
+    // console.log('Collection Name:', Product.collection.collectionName); // This gets the name of the collection
+    // console.log('Product Collection Count:', await Product.collection.countDocuments());
 
-    const product = await Product.findOne({ _id: productId });
+    const product = await Product.find({ _id: productId });
     console.log('Fetched Product:', product);
     if (!product) {
       console.log('Request Body:', req.body); // Log the request body
