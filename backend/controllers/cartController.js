@@ -3,7 +3,7 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const mongoose = require('mongoose');
 
-// Fetch the cart items for a specific user
+// Fetch the cart items for a specific user and calculate the total price
 const getCartItems = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -13,7 +13,15 @@ const getCartItems = async (req, res) => {
       return res.status(404).json({ message: 'Cart is empty' });
     }
 
-    res.json(cart);
+    // Calculate the total price of the cart items
+    const totalPrice = cart.items.reduce((total, item) => {
+      return total + item.productId.price * item.quantity;
+    }, 0);
+
+    res.json({
+      cart,
+      totalPrice: totalPrice.toFixed(2) // Round to 2 decimal places
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -24,20 +32,9 @@ const updateCart = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
     const userId = req.user._id;
-    
 
-    // Log the productId for debugging
-    // console.log('Product ID:', productId);
-    // console.log('User ID:', userId);
-    // console.log('Request User:', req.user);
-    // console.log('Database Name:', mongoose.connection.name); // This gets the name of the current database
-    // console.log('Collection Name:', Product.collection.collectionName); // This gets the name of the collection
-    // console.log('Product Collection Count:', await Product.collection.countDocuments());
-
-    const product = await Product.find({ _id: productId });
-    console.log('Fetched Product:', product);
+    const product = await Product.findById(productId);
     if (!product) {
-      console.log('Request Body:', req.body); // Log the request body
       return res.status(404).json({ message: 'Product not found' });
     }
 
@@ -60,7 +57,16 @@ const updateCart = async (req, res) => {
 
     // Save the updated cart
     await cart.save();
-    res.json(cart);
+
+    // Recalculate the total price after updating the cart
+    const totalPrice = cart.items.reduce((total, item) => {
+      return total + item.productId.price * item.quantity;
+    }, 0);
+
+    res.json({
+      cart,
+      totalPrice: totalPrice.toFixed(2)
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -78,12 +84,21 @@ const removeFromCart = async (req, res) => {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    // Find the item in the cart and remove it
+    // Remove the item from the cart
     cart.items = cart.items.filter(item => item.productId.toString() !== productId);
 
     // Save the updated cart
     await cart.save();
-    res.json(cart);
+
+    // Recalculate the total price after removing the item
+    const totalPrice = cart.items.reduce((total, item) => {
+      return total + item.productId.price * item.quantity;
+    }, 0);
+
+    res.json({
+      cart,
+      totalPrice: totalPrice.toFixed(2)
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

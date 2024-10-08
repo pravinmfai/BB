@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
 const errorHandler = require('./middleware/errorMiddleware');
 const razorpayInstance = require('./config/razorpay');
+const cors = require('cors');
 
 // Import routes
 const cartRoutes = require('./routes/cartRoutes');
@@ -20,9 +21,11 @@ connectDB();
 
 const app = express();
 
+
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser()); // To parse cookies
+app.use(cors());
 
 // Use the routes
 app.use('/api/cart', cartRoutes);
